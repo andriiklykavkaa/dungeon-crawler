@@ -59,9 +59,12 @@ class Arrow(pygame.sprite.Sprite):
         self.dx = math.cos(math.radians(self.angle)) * constants.ARROW_SPEED
         self.dy = -math.sin(math.radians(self.angle)) * constants.ARROW_SPEED
 
-    def update(self, enemy_list):
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+    def update(self, screen_scroll, enemy_list):
+        damage = 0
+        damage_pos = None
+
+        self.rect.x += screen_scroll[0] + self.dx
+        self.rect.y += screen_scroll[1] + self.dy
 
         if self.rect.right < 0 or self.rect.left > constants.SCREEN_WIDTH or self.rect.bottom < 0 or self.rect.top > constants.SCREEN_HEIGHT:
             self.kill()
@@ -69,9 +72,11 @@ class Arrow(pygame.sprite.Sprite):
         for enemy in enemy_list:
             if enemy.rect.colliderect(self.rect) and enemy.alive:
                 damage = 10 + randint(-5,5)
+                damage_pos = enemy.rect
                 enemy.health -= damage
                 self.kill()
                 break
+        return damage, damage_pos
 
     def draw(self, surface):
         surface.blit(self.image,
