@@ -103,10 +103,6 @@ world.process_data(world_data, tile_list, item_images, mob_animations)
 
 class DamageText(pygame.sprite.Sprite):
     def __init__(self,x, y, damage, color):
-        """
-
-        :rtype: object
-        """
         pygame.sprite.Sprite.__init__(self)
         self.image = font.render(str(damage), True, color)
         self.rect = self.image.get_rect()
@@ -154,9 +150,6 @@ while running:
         dy = constants.SPEED
 
     screen_scroll = player.move(dx, dy, world.obstacle_tiles)
-    for enemy in enemy_list:
-        enemy.ai(screen_scroll)
-        enemy.update()
 
     player.update()
     arrow = bow.update(player)
@@ -164,8 +157,14 @@ while running:
         arrow_group.add(arrow)
 
     world.update(screen_scroll)
+    world.draw(screen)
+
+    for enemy in enemy_list:
+        enemy.ai(screen, player, world.obstacle_tiles, screen_scroll)
+        enemy.update()
+
     for arrow in arrow_group:
-        damage, damage_pos = arrow.update(screen_scroll, enemy_list)
+        damage, damage_pos = arrow.update(screen_scroll, world.obstacle_tiles, enemy_list)
         if damage and damage_pos:
             damage_text = DamageText(damage_pos.centerx, damage_pos.y, str(damage), constants.RED)
             damage_text_group.add(damage_text)
@@ -173,7 +172,6 @@ while running:
         damage_text.update()
     item_group.update(screen_scroll, player)
 
-    world.draw(screen)
     arrow_group.draw(screen)
     for enemy in enemy_list:
         enemy.draw(screen)
